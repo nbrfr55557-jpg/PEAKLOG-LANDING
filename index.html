@@ -4,602 +4,237 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PEAKLOG — Gym Performance Tracker</title>
-  <meta name="description" content="Suis tes perfs, explose tes PR. L'app de tracking fitness sans pub ni abonnement.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #0a0a0a;
-      --surface: #111111;
-      --accent: #c8ff00;
-      --red: #ff4d4d;
-      --text: #e8e8e8;
-      --muted: #555;
-      --border: #1e1e1e;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      overflow-x: hidden;
-    }
-
-    /* GRAIN OVERLAY */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 1000;
-      opacity: 0.4;
-    }
-
-    /* NAV */
-    nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 20px 40px;
-      background: rgba(10,10,10,0.85);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .nav-logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.6rem;
-      color: var(--accent);
-      letter-spacing: 3px;
-    }
-
-    .nav-cta {
-      background: var(--accent);
-      color: #000;
-      border: none;
-      border-radius: 6px;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1rem;
-      letter-spacing: 1.5px;
-      padding: 10px 24px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: opacity 0.15s;
-    }
-
-    .nav-cta:hover { opacity: 0.85; }
-
-    /* HERO */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 120px 20px 80px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -200px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 800px;
-      height: 800px;
-      background: radial-gradient(circle, rgba(200,255,0,0.06) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .hero-badge {
-      display: inline-block;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--accent);
-      border: 1px solid rgba(200,255,0,0.3);
-      border-radius: 20px;
-      padding: 6px 16px;
-      margin-bottom: 24px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      animation: fadeUp 0.8s ease both;
-    }
-
-    .hero-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(5rem, 18vw, 14rem);
-      color: var(--text);
-      line-height: 0.85;
-      letter-spacing: -2px;
-      margin-bottom: 8px;
-      animation: fadeUp 0.8s ease 0.1s both;
-    }
-
-    .hero-title span { color: var(--accent); }
-
-    .hero-sub {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(1.2rem, 4vw, 2.5rem);
-      color: var(--muted);
-      letter-spacing: 4px;
-      margin-bottom: 32px;
-      animation: fadeUp 0.8s ease 0.2s both;
-    }
-
-    .hero-desc {
-      max-width: 520px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 1.05rem;
-      color: #888;
-      line-height: 1.7;
-      margin-bottom: 40px;
-      animation: fadeUp 0.8s ease 0.3s both;
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-      animation: fadeUp 0.8s ease 0.4s both;
-    }
-
-    .btn-primary {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--accent);
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.1rem;
-      letter-spacing: 1.5px;
-      padding: 14px 28px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: transform 0.15s, opacity 0.15s;
-    }
-
-    .btn-primary:hover { transform: translateY(-2px); opacity: 0.9; }
-
-    .btn-secondary {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: none;
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.8rem;
-      padding: 14px 28px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: border-color 0.15s;
-    }
-
-    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* PHONES MOCKUP */
-    .phones {
-      margin-top: 80px;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      align-items: flex-end;
-      animation: fadeUp 0.8s ease 0.5s both;
-    }
-
-    .phone {
-      background: #111;
-      border: 1.5px solid #222;
-      border-radius: 36px;
-      overflow: hidden;
-      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
-    }
-
-    .phone-main {
-      width: 200px;
-      height: 400px;
-    }
-
-    .phone-side {
-      width: 160px;
-      height: 320px;
-      opacity: 0.6;
-      transform: perspective(600px) rotateY(12deg);
-    }
-
-    .phone-side.right {
-      transform: perspective(600px) rotateY(-12deg);
-    }
-
-    .phone img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: top;
-    }
-
-    /* FEATURES */
-    .section {
-      padding: 100px 20px;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .section-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 16px;
-    }
-
-    .section-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2.5rem, 6vw, 5rem);
-      line-height: 0.9;
-      margin-bottom: 60px;
-      letter-spacing: 1px;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 16px;
-    }
-
-    .feature-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 28px;
-      transition: border-color 0.2s, transform 0.2s;
-    }
-
-    .feature-card:hover {
-      border-color: rgba(200,255,0,0.3);
-      transform: translateY(-4px);
-    }
-
-    .feature-icon {
-      font-size: 2rem;
-      margin-bottom: 16px;
-    }
-
-    .feature-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.4rem;
-      color: var(--text);
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
-
-    .feature-desc {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--muted);
-      line-height: 1.7;
-    }
-
-    /* PRICING */
-    .pricing {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 60px 40px;
-      text-align: center;
-      max-width: 500px;
-      margin: 0 auto;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .pricing::before {
-      content: '';
-      position: absolute;
-      top: -100px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 300px;
-      height: 300px;
-      background: radial-gradient(circle, rgba(200,255,0,0.08) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .pricing-free {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 8px;
-    }
-
-    .pricing-price {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 5rem;
-      color: var(--accent);
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-
-    .pricing-detail {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      color: var(--muted);
-      margin-bottom: 32px;
-    }
-
-    .pricing-features {
-      text-align: left;
-      margin-bottom: 32px;
-    }
-
-    .pricing-feature {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--text);
-    }
-
-    .pricing-feature:last-child { border-bottom: none; }
-
-    .check { color: var(--accent); font-size: 0.9rem; }
-
-    /* DIVIDER */
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 0 40px;
-    }
-
-    /* FOOTER */
-    footer {
-      padding: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-
-    .footer-logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.2rem;
-      color: var(--muted);
-      letter-spacing: 2px;
-    }
-
-    .footer-links {
-      display: flex;
-      gap: 24px;
-    }
-
-    .footer-links a {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.15s;
-    }
-
-    .footer-links a:hover { color: var(--accent); }
-
-    /* ANIMATIONS */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* SCROLL REVEAL */
-    .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* MOBILE */
-    @media (max-width: 600px) {
-      nav { padding: 16px 20px; }
-      .phones { gap: 10px; }
-      .phone-main { width: 150px; height: 300px; }
-      .phone-side { width: 110px; height: 220px; }
-      .section { padding: 60px 20px; }
-      .pricing { padding: 40px 20px; }
-      footer { flex-direction: column; align-items: flex-start; }
-    }
+    :root { --bg:#0a0a0a;--surface:#111;--accent:#c8ff00;--red:#ff4d4d;--text:#e8e8e8;--muted:#555;--border:#1e1e1e; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;overflow-x:hidden}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 40px;background:rgba(10,10,10,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+    .nav-logo{font-family:"Bebas Neue",sans-serif;font-size:1.6rem;color:var(--accent);letter-spacing:3px}
+    .nav-cta{background:var(--accent);color:#000;border:none;border-radius:6px;font-family:"Bebas Neue",sans-serif;font-size:1rem;letter-spacing:1.5px;padding:10px 24px;cursor:pointer;text-decoration:none}
+    .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:140px 20px 80px}
+    .hero-badge{display:inline-block;font-family:"DM Mono",monospace;font-size:0.7rem;color:var(--accent);border:1px solid rgba(200,255,0,0.3);border-radius:20px;padding:6px 16px;margin-bottom:24px;letter-spacing:1px;text-transform:uppercase}
+    .hero-title{font-family:"Bebas Neue",sans-serif;font-size:clamp(5rem,18vw,13rem);line-height:0.85;letter-spacing:-2px;margin-bottom:8px}
+    .hero-title span{color:var(--accent)}
+    .hero-sub{font-family:"Bebas Neue",sans-serif;font-size:clamp(1rem,3vw,2rem);color:var(--muted);letter-spacing:4px;margin-bottom:28px}
+    .hero-desc{max-width:500px;font-size:1rem;color:#888;line-height:1.7;margin-bottom:36px}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+    .btn-primary{background:var(--accent);color:#000;border:none;border-radius:8px;font-family:"Bebas Neue",sans-serif;font-size:1.1rem;letter-spacing:1.5px;padding:14px 28px;cursor:pointer;text-decoration:none}
+    .btn-outline{background:none;color:var(--text);border:1px solid var(--border);border-radius:8px;font-family:"DM Mono",monospace;font-size:0.8rem;padding:14px 28px;text-decoration:none}
+    .stats-bar{display:flex;justify-content:center;margin-top:60px;border:1px solid var(--border);border-radius:12px;overflow:hidden;width:100%;max-width:600px}
+    .stat-item{flex:1;padding:24px 16px;text-align:center;border-right:1px solid var(--border);background:var(--surface)}
+    .stat-item:last-child{border-right:none}
+    .stat-val{font-family:"Bebas Neue",sans-serif;font-size:2.5rem;color:var(--accent);line-height:1}
+    .stat-label{font-family:"DM Mono",monospace;font-size:0.6rem;color:var(--muted);text-transform:uppercase;margin-top:4px}
+    .divider{height:1px;background:var(--border);margin:0 40px}
+    .section{padding:100px 20px;max-width:1100px;margin:0 auto}
+    .section-label{font-family:"DM Mono",monospace;font-size:0.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px}
+    .section-title{font-family:"Bebas Neue",sans-serif;font-size:clamp(2.5rem,6vw,5rem);line-height:0.9;margin-bottom:50px}
+    .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+    .feature-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;transition:border-color 0.2s,transform 0.2s}
+    .feature-card:hover{border-color:rgba(200,255,0,0.3);transform:translateY(-4px)}
+    .feature-icon{font-size:2rem;margin-bottom:14px}
+    .feature-title{font-family:"Bebas Neue",sans-serif;font-size:1.3rem;letter-spacing:1px;margin-bottom:8px}
+    .feature-desc{font-family:"DM Mono",monospace;font-size:0.72rem;color:var(--muted);line-height:1.7}
+    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px}
+    .step-num{font-family:"Bebas Neue",sans-serif;font-size:5rem;color:rgba(200,255,0,0.12);line-height:1}
+    .step-title{font-family:"Bebas Neue",sans-serif;font-size:1.4rem;letter-spacing:1px;margin-bottom:8px}
+    .step-desc{font-family:"DM Mono",monospace;font-size:0.72rem;color:var(--muted);line-height:1.7}
+    .chrono-mockup{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:280px;text-align:center}
+    .chrono-time{font-family:"Bebas Neue",sans-serif;font-size:5rem;color:var(--accent);line-height:1}
+    .compare-table{max-width:600px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+    .compare-header{display:grid;grid-template-columns:1fr 1fr 1fr;background:#0d0d0d}
+    .ch{padding:16px;font-family:"DM Mono",monospace;font-size:0.65rem;color:var(--muted)}
+    .ch.pro{color:var(--accent);text-align:center;border-left:1px solid var(--border);background:rgba(200,255,0,0.04);font-family:"Bebas Neue",sans-serif;font-size:1rem;letter-spacing:1px}
+    .ch.free-h{text-align:center;border-left:1px solid var(--border);font-family:"Bebas Neue",sans-serif;font-size:1rem;letter-spacing:1px}
+    .cr{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--border)}
+    .cr .f{padding:13px 16px;font-family:"DM Mono",monospace;font-size:0.7rem;color:var(--muted)}
+    .cr .v{padding:13px;text-align:center;font-family:"DM Mono",monospace;font-size:0.7rem;border-left:1px solid var(--border);color:var(--muted)}
+    .cr .v.p{color:var(--accent);background:rgba(200,255,0,0.02)}
+    .cr .v.no{color:#222}
+    .pricing-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:48px 32px;text-align:center;max-width:460px;margin:0 auto}
+    .price-tag{font-family:"Bebas Neue",sans-serif;font-size:5rem;color:var(--accent);line-height:1}
+    .price-sub{font-family:"DM Mono",monospace;font-size:0.72rem;color:var(--muted);margin-bottom:28px}
+    .price-btn{display:block;width:100%;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:"Bebas Neue",sans-serif;font-size:1.2rem;letter-spacing:1.5px;padding:16px;text-decoration:none;cursor:pointer}
+    footer{padding:32px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;border-top:1px solid var(--border)}
+    .footer-logo{font-family:"Bebas Neue",sans-serif;font-size:1.2rem;color:var(--muted);letter-spacing:2px}
+    .footer-links{display:flex;gap:24px}
+    .footer-links a{font-family:"DM Mono",monospace;font-size:0.72rem;color:var(--muted);text-decoration:none}
+    .footer-links a:hover{color:var(--accent)}
+    .reveal{opacity:1;transform:translateY(0);transition:opacity 0.6s,transform 0.6s}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    @media(max-width:600px){nav{padding:16px 20px}.section{padding:60px 20px}footer{flex-direction:column}.stats-bar{flex-direction:column}.stat-item{border-right:none;border-bottom:1px solid var(--border)}}
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav>
-    <div class="nav-logo">PEAKLOG</div>
-    <a href="#download" class="nav-cta">TÉLÉCHARGER</a>
-  </nav>
+<nav>
+  <div class="nav-logo">PEAKLOG</div>
+  <a href="#download" class="nav-cta">TELECHARGER</a>
+</nav>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-badge">🔥 Disponible sur App Store</div>
-    <h1 class="hero-title">PEAK<span>LOG</span></h1>
-    <div class="hero-sub">Gym Performance Tracker</div>
-    <p class="hero-desc">
-      Tu as ton programme. Il te manquait l'app qui suit tout ça comme un boss.<br>
-      Zéro pub. Zéro abonnement. Juste du suivi propre, précis et ultra addictif.
-    </p>
-    <div class="hero-actions">
-      <a href="#download" class="btn-primary">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-        App Store
-      </a>
-      <a href="#features" class="btn-secondary">Découvrir →</a>
+<section class="hero">
+  <div class="hero-badge">Disponible sur App Store</div>
+  <h1 class="hero-title">PEAK<span>LOG</span></h1>
+  <div class="hero-sub">Gym Performance Tracker</div>
+  <p class="hero-desc">Tu as ton programme. Il te manquait l'app qui suit tout ca comme un boss. Zero pub. Zero abonnement. Juste du suivi propre, precis et ultra addictif.</p>
+  <div class="hero-actions">
+    <a href="#download" class="btn-primary">TELECHARGER SUR L'APP STORE</a>
+    <a href="#features" class="btn-outline">Decouvrir</a>
+  </div>
+  <div style="display:flex;justify-content:center;gap:16px;align-items:flex-end;margin-top:60px;width:100%;max-width:700px;isolation:isolate">
+
+    <!-- Phone gauche -->
+    <div style="background:#111;border:1.5px solid #222;border-radius:28px;overflow:hidden;width:150px;height:300px;opacity:0.6;flex-shrink:0;box-shadow:0 30px 60px rgba(0,0,0,0.6)">
+      <div style="width:100%;height:100%;background:linear-gradient(180deg,#111 0%,#0a0a0a 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px">
+        <div style="font-family:Bebas Neue,sans-serif;font-size:1.6rem;color:#ff4d4d;letter-spacing:2px">WOD</div>
+        <div style="font-family:DM Mono,monospace;font-size:0.5rem;color:#333;text-align:center">GIRLS · HEROES<br>BENCHMARKS</div>
+      </div>
     </div>
 
-    <!-- PHONE MOCKUPS -->
-    <div class="phones">
-      <div class="phone phone-side">
-        <div style="width:100%;height:100%;background:linear-gradient(180deg,#111 0%,#0a0a0a 100%);display:flex;align-items:center;justify-content:center">
-          <div style="text-align:center">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#ff4d4d;letter-spacing:2px">WOD</div>
-            <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:#444;margin-top:4px">GIRLS · HEROES · BENCHMARKS</div>
-          </div>
+    <!-- Phone central -->
+    <div style="background:#111;border:1.5px solid #222;border-radius:32px;overflow:hidden;width:200px;height:400px;flex-shrink:0;box-shadow:0 40px 80px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.04)">
+      <div style="width:100%;height:100%;padding:20px 14px;display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,#111 0%,#0a0a0a 100%)">
+        <div style="font-family:Bebas Neue,sans-serif;font-size:2.2rem;color:#c8ff00;line-height:1">PEAKLOG</div>
+        <div style="font-family:DM Mono,monospace;font-size:0.45rem;color:#444;text-transform:uppercase">BACKSQUAT</div>
+        <div style="background:#161616;border:1px solid #1e1e1e;border-radius:8px;padding:10px;border-left:3px solid #b388ff">
+          <div style="font-family:DM Mono,monospace;font-size:0.45rem;color:#b388ff">1 REP MAX</div>
+          <div style="font-family:Bebas Neue,sans-serif;font-size:1.8rem;color:#e8e8e8;line-height:1.1">142 <span style="font-size:0.8rem;color:#555">KG</span></div>
         </div>
-      </div>
-      <div class="phone phone-main">
-        <div style="width:100%;height:100%;background:linear-gradient(180deg,#111 0%,#0a0a0a 100%);padding:20px 16px;display:flex;flex-direction:column;gap:10px">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:#c8ff00;line-height:1">PEAKLOG</div>
-          <div style="font-family:'DM Mono',monospace;font-size:0.5rem;color:#444;text-transform:uppercase">BACKSQUAT</div>
-          <div style="background:#161616;border:1px solid #1e1e1e;border-radius:8px;padding:12px;border-left:3px solid #b388ff">
-            <div style="font-family:'DM Mono',monospace;font-size:0.5rem;color:#b388ff">🏆 1 REP MAX</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#e8e8e8;line-height:1.1">142 <span style="font-size:0.9rem;color:#555">KG</span></div>
-          </div>
-          <div style="background:#161616;border:1px solid #1e1e1e;border-radius:8px;padding:12px;border-left:3px solid #4daaff">
-            <div style="font-family:'DM Mono',monospace;font-size:0.5rem;color:#4daaff">5 REP MAX</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#e8e8e8;line-height:1.1">130 <span style="font-size:0.9rem;color:#555">KG</span></div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">
-            <div style="background:#161616;border:1px solid #1e1e1e;border-radius:6px;padding:8px;text-align:center">
-              <div style="font-family:'DM Mono',monospace;font-size:0.45rem;color:#444">2 RM</div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#e8e8e8">138kg</div>
-            </div>
-            <div style="background:#161616;border:1px solid #1e1e1e;border-radius:6px;padding:8px;text-align:center">
-              <div style="font-family:'DM Mono',monospace;font-size:0.45rem;color:#444">3 RM</div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#e8e8e8">135kg</div>
-            </div>
-          </div>
+        <div style="background:#161616;border:1px solid #1e1e1e;border-radius:8px;padding:10px;border-left:3px solid #4daaff">
+          <div style="font-family:DM Mono,monospace;font-size:0.45rem;color:#4daaff">5 REP MAX</div>
+          <div style="font-family:Bebas Neue,sans-serif;font-size:1.8rem;color:#e8e8e8;line-height:1.1">130 <span style="font-size:0.8rem;color:#555">KG</span></div>
         </div>
-      </div>
-      <div class="phone phone-side right">
-        <div style="width:100%;height:100%;background:linear-gradient(180deg,#111 0%,#0a0a0a 100%);display:flex;align-items:center;justify-content:center">
-          <div style="text-align:center">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#ff9f1c;letter-spacing:2px">CARDIO</div>
-            <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:#444;margin-top:4px">12 ACTIVITÉS</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <div style="background:#161616;border:1px solid #1e1e1e;border-radius:6px;padding:8px;text-align:center">
+            <div style="font-family:DM Mono,monospace;font-size:0.4rem;color:#444">2 RM</div>
+            <div style="font-family:Bebas Neue,sans-serif;font-size:0.95rem;color:#e8e8e8">138kg</div>
+          </div>
+          <div style="background:#161616;border:1px solid #1e1e1e;border-radius:6px;padding:8px;text-align:center">
+            <div style="font-family:DM Mono,monospace;font-size:0.4rem;color:#444">3 RM</div>
+            <div style="font-family:Bebas Neue,sans-serif;font-size:0.95rem;color:#e8e8e8">135kg</div>
           </div>
         </div>
       </div>
     </div>
-  </section>
 
-  <div class="divider"></div>
+    <!-- Phone droit -->
+    <div style="background:#111;border:1.5px solid #222;border-radius:28px;overflow:hidden;width:150px;height:300px;opacity:0.6;flex-shrink:0;box-shadow:0 30px 60px rgba(0,0,0,0.6)">
+      <div style="width:100%;height:100%;background:linear-gradient(180deg,#111 0%,#0a0a0a 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px">
+        <div style="font-family:Bebas Neue,sans-serif;font-size:1.6rem;color:#ff9f1c;letter-spacing:2px">CARDIO</div>
+        <div style="font-family:DM Mono,monospace;font-size:0.5rem;color:#333;text-align:center">12 ACTIVITES</div>
+      </div>
+    </div>
 
-  <!-- FEATURES -->
-  <section class="section" id="features">
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="section" id="features">
+  <div class="reveal"><div class="section-label">Fonctionnalites</div><h2 class="section-title">TOUT CE DONT<br>TU AS BESOIN</h2></div>
+  <div class="features-grid">
+    <div class="feature-card reveal"><div class="feature-icon">💪</div><div class="feature-title">SEANCES PERSO</div><div class="feature-desc">Configure tes seances muscu sur mesure. Exercices, series, temps de repos. Chrono integre avec notification en arriere-plan.</div></div>
+    <div class="feature-card reveal"><div class="feature-icon">📊</div><div class="feature-title">STATS ET RECORDS</div><div class="feature-desc">Tes 1RM, 5RM et records par exercice mis en avant. Suivi de progression sur chaque pallier de charge.</div></div>
+    <div class="feature-card reveal"><div class="feature-icon">🔥</div><div class="feature-title">WODs</div><div class="feature-desc">Girls, Heroes, Benchmarks. Plus de 60 WODs avec standards H/F en kg et lbs. Log tes scores RX ou Scaled.</div></div>
+    <div class="feature-card reveal"><div class="feature-icon">🏃</div><div class="feature-title">CARDIO</div><div class="feature-desc">Run, Rameur, Echo Bike, SkiErg et 8 autres activites. Distance, duree, commentaire.</div></div>
+    <div class="feature-card reveal"><div class="feature-icon">📋</div><div class="feature-title">HISTORIQUE</div><div class="feature-desc">Toutes tes seances, WODs et cardios dans un seul journal chronologique. Filtrable par type.</div></div>
+    <div class="feature-card reveal"><div class="feature-icon">📄</div><div class="feature-title">EXPORT PDF</div><div class="feature-desc">Genere ton journal d'entrainement en PDF. Partage avec ton coach en un clic.</div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="section">
+  <div class="reveal"><div class="section-label">Simple par design</div><h2 class="section-title">COMMENT<br>CA MARCHE</h2></div>
+  <div class="steps">
+    <div class="reveal"><div class="step-num">01</div><div class="step-title">CONFIGURE</div><div class="step-desc">Cree tes seances sur mesure. Nomme-les, ajoute tes exercices, definis le nombre de series et le temps de repos.</div></div>
+    <div class="reveal"><div class="step-num">02</div><div class="step-title">ENREGISTRE</div><div class="step-desc">Saisis tes charges et reps en live pendant la seance. Lance le chrono de recup entre chaque serie.</div></div>
+    <div class="reveal"><div class="step-num">03</div><div class="step-title">ANALYSE</div><div class="step-desc">Consulte tes 1RM, 5RM et tous tes records. Exporte ton journal en PDF pour ton coach.</div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="section">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:60px;align-items:center">
     <div class="reveal">
-      <div class="section-label">Fonctionnalités</div>
-      <h2 class="section-title">TOUT CE DONT<br>TU AS BESOIN</h2>
-    </div>
-    <div class="features-grid">
-      <div class="feature-card reveal">
-        <div class="feature-icon">💪</div>
-        <div class="feature-title">SÉANCES PERSO</div>
-        <div class="feature-desc">Configure tes séances muscu sur mesure. Exercices, séries, temps de repos. Chrono intégré avec notification en arrière-plan.</div>
-      </div>
-      <div class="feature-card reveal">
-        <div class="feature-icon">📊</div>
-        <div class="feature-title">STATS & RECORDS</div>
-        <div class="feature-desc">Tes 1RM, 5RM et records par exercice mis en avant. Suivi de progression sur chaque pallier de charge.</div>
-      </div>
-      <div class="feature-card reveal">
-        <div class="feature-icon">🔥</div>
-        <div class="feature-title">WODs</div>
-        <div class="feature-desc">Girls, Heroes, Benchmarks. Plus de 60 WODs avec standards H/F en kg et lbs. Log tes scores RX ou Scaled.</div>
-      </div>
-      <div class="feature-card reveal">
-        <div class="feature-icon">🏃</div>
-        <div class="feature-title">CARDIO</div>
-        <div class="feature-desc">Run, Rameur, Echo Bike, SkiErg et 8 autres activités. Distance, durée, commentaire.</div>
-      </div>
-      <div class="feature-card reveal">
-        <div class="feature-icon">📋</div>
-        <div class="feature-title">HISTORIQUE</div>
-        <div class="feature-desc">Toutes tes séances, WODs et cardios dans un seul journal chronologique. Filtrable par type.</div>
-      </div>
-      <div class="feature-card reveal">
-        <div class="feature-icon">📄</div>
-        <div class="feature-title">EXPORT PDF</div>
-        <div class="feature-desc">Génère ton journal d'entraînement en PDF sur la période de ton choix. Partage avec ton coach en un clic.</div>
+      <div class="section-label">Chrono de recuperation</div>
+      <h2 class="section-title" style="font-size:clamp(2rem,5vw,4rem)">TON REPOS,<br>MAITRISE.</h2>
+      <p style="font-family:DM Mono,monospace;font-size:0.78rem;color:var(--muted);line-height:1.9;margin-bottom:24px">Lance le chrono entre deux series et switche sur une autre app. PEAKLOG continue en arriere-plan. Notification a la fin du repos.</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-family:DM Mono,monospace;font-size:0.72rem;color:var(--text)"><span style="color:var(--accent);margin-right:8px">→</span>Tourne en arriere-plan</div>
+        <div style="font-family:DM Mono,monospace;font-size:0.72rem;color:var(--text)"><span style="color:var(--accent);margin-right:8px">→</span>Notification a la fin du repos</div>
+        <div style="font-family:DM Mono,monospace;font-size:0.72rem;color:var(--text)"><span style="color:var(--accent);margin-right:8px">→</span>Ecran allume pendant la seance</div>
+        <div style="font-family:DM Mono,monospace;font-size:0.72rem;color:var(--text)"><span style="color:var(--accent);margin-right:8px">→</span>Ajustable -30s / +30s</div>
       </div>
     </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- PRICING -->
-  <section class="section" id="download" style="text-align:center">
-    <div class="reveal">
-      <div class="section-label">Tarification</div>
-      <h2 class="section-title">SIMPLE &<br>HONNÊTE</h2>
-    </div>
-    <div class="pricing reveal">
-      <div class="pricing-free">Version gratuite disponible</div>
-      <div class="pricing-price">4,99€</div>
-      <div class="pricing-detail">Achat unique — à vie. Zéro abonnement.</div>
-      <div class="pricing-features">
-        <div class="pricing-feature"><span class="check">✓</span> Séances illimitées</div>
-        <div class="pricing-feature"><span class="check">✓</span> WODs — log de scores</div>
-        <div class="pricing-feature"><span class="check">✓</span> Stats avancées</div>
-        <div class="pricing-feature"><span class="check">✓</span> Historique complet</div>
-        <div class="pricing-feature"><span class="check">✓</span> Export PDF</div>
-        <div class="pricing-feature"><span class="check">✓</span> Zéro pub</div>
+    <div class="reveal" style="display:flex;justify-content:center">
+      <div class="chrono-mockup">
+        <div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Recuperation</div>
+        <div class="chrono-time">01:30</div>
+        <div style="font-family:DM Mono,monospace;font-size:0.6rem;color:#333;margin-bottom:20px">en cours...</div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
+          <div style="background:#1a1a1a;border:1px solid var(--border);border-radius:6px;padding:8px 14px;font-family:DM Mono,monospace;font-size:0.7rem;color:var(--muted)">-30s</div>
+          <div style="background:#1a1a1a;border:1px solid var(--border);border-radius:6px;padding:8px 14px;font-family:DM Mono,monospace;font-size:0.7rem;color:var(--muted)">+30s</div>
+        </div>
+        <div style="background:var(--red);border-radius:6px;padding:10px;font-family:Bebas Neue,sans-serif;font-size:1rem;color:#fff;letter-spacing:1px;margin-bottom:16px">STOP</div>
+        <div style="background:#161616;border-radius:8px;padding:10px 12px;text-align:left">
+          <div style="font-family:DM Mono,monospace;font-size:0.55rem;color:#333;margin-bottom:2px">PEAKLOG — NOTIFICATION</div>
+          <div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--muted)">Recuperation terminee — C'est reparti !</div>
+        </div>
       </div>
-      <a href="https://apps.apple.com/app/peaklog-fitness/id000000000" class="btn-primary" style="width:100%;justify-content:center;font-size:1.2rem;padding:16px">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-        TÉLÉCHARGER SUR L'APP STORE
-      </a>
     </div>
-  </section>
+  </div>
+</section>
 
-  <div class="divider"></div>
+<div class="divider"></div>
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-logo">PEAKLOG</div>
-    <div class="footer-links">
-      <a href="privacy.html">Politique de confidentialité</a>
-      <a href="mailto:support@peaklog.app">Support</a>
-      <a href="https://github.com/nbrfr55557-jpg/PEAKLOG">GitHub</a>
+<section class="section">
+  <div class="reveal" style="text-align:center;margin-bottom:48px">
+    <div class="section-label">Tarification</div>
+    <h2 class="section-title">GRATUIT<br>OU PRO ?</h2>
+  </div>
+  <div class="compare-table reveal">
+    <div class="compare-header">
+      <div class="ch"></div>
+      <div class="ch free-h">GRATUIT</div>
+      <div class="ch pro">PRO</div>
     </div>
-  </footer>
+    <div class="cr"><div class="f">Seances muscu</div><div class="v">1 seance</div><div class="v p">Illimitees</div></div>
+    <div class="cr"><div class="f">Cardio</div><div class="v">1 session</div><div class="v p">Illimite</div></div>
+    <div class="cr"><div class="f">WODs — consultation</div><div class="v">✓</div><div class="v p">✓</div></div>
+    <div class="cr"><div class="f">WODs — log scores</div><div class="v no">✗</div><div class="v p">✓</div></div>
+    <div class="cr"><div class="f">Stats</div><div class="v">Seance free</div><div class="v p">Completes</div></div>
+    <div class="cr"><div class="f">Historique</div><div class="v">5 entrees</div><div class="v p">Complet</div></div>
+    <div class="cr"><div class="f">Export PDF</div><div class="v no">✗</div><div class="v p">✓</div></div>
+    <div class="cr"><div class="f">Publicites</div><div class="v no">✗</div><div class="v no">✗</div></div>
+  </div>
+</section>
 
-  <script>
-    // Scroll reveal
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('visible');
-          observer.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.1 });
+<div class="divider"></div>
 
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-  </script>
+<section class="section" id="download" style="text-align:center">
+  <div class="pricing-box reveal">
+    <div class="section-label" style="margin-bottom:8px">Achat unique</div>
+    <div class="price-tag">4,99€</div>
+    <div class="price-sub">Une seule fois. A vie. Zero abonnement.</div>
+    <a href="https://apps.apple.com" class="price-btn">TELECHARGER SUR L'APP STORE</a>
+    <p style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--muted);margin-top:16px">Version gratuite disponible</p>
+  </div>
+</section>
 
-</body>
-</html>
+<div class="divider"></div>
+
+<footer>
+  <div class="footer-logo">PEAKLOG</div>
+  <div class="footer-links">
+    <a href="privacy.html">Politique de confidentialite</a>
+    <a href="/cdn-cgi/l/email-protection#aad9dfdadac5d8deeadacfcbc1c6c5cd84cbdada">Support</a>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visibl
